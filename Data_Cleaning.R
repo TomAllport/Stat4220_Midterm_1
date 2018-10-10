@@ -1,5 +1,4 @@
 #### Data Cleaning ####
-setwd("~/Documents/University/UVa/Semester 1/Business Analytics (4220)/Midterm/Data")
 data = data.frame(read.csv("laptops.csv"))
 summary(data)
 
