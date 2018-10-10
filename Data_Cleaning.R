@@ -258,3 +258,4 @@ data$Weight = as.double(substr(data$Weight, 1, nchar(as.character(data$Weight))-
 
 ### Remove old variables ###
 data = subset(data, select = -c(X, Product, ScreenResolution, Cpu, Memory, OpSys, Gpu))
+write.csv(data, "Clean_Data.csv")
