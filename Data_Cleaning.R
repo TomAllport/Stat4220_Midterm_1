@@ -82,13 +82,6 @@ for(i in 1:length(data$Resolution))
   }
 }
 
-### Set the levels of resolution ###
-data$Resolution = factor(data$Resolution)
-levels(data$Resolution) = c("1366", "1440", "1600", "1920",
-                            "2160", "2256", "2403", "2400", 
-                            "2560", "2736", "2880", "3200", 
-                            "3840")
-
 ### Split up Cpu into brand and number of cores ###
 data$Cpu.Cores <- 0
 for(i in 1:length(data$Cpu))
@@ -149,6 +142,8 @@ for(i in 1:length(data$Cpu))
 # Reorder Ram to be in ascending order
 levels(data$Ram) = c("2GB", "4GB", "6GB", "8GB", "12GB", 
                      "16GB", "24GB", "32GB", "64GB")
+
+data$Ram1 = as.double(substr(data$Ram, 1, nchar(as.character(data$Ram))-2))    
 
 # Split Memory into Size (Factor) and Type (Binary)
 data$Memory.Size = 0
