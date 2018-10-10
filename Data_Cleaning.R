@@ -1,5 +1,7 @@
 #### Data Cleaning ####
 data = data.frame(read.csv("laptops.csv"))
+
+#change to factor etc
 summary(data)
 
 ### Split Screen Size to ratio and touchscreen ###
@@ -82,6 +84,9 @@ for(i in 1:length(data$Resolution))
   }
 }
 
+### Set the levels of resolution ###
+data$Resolution = factor(data$Resolution, c("UHD", "HD", "SD"))
+
 ### Split up Cpu into brand and number of cores ###
 data$Cpu.Cores <- 0
 for(i in 1:length(data$Cpu))
@@ -115,7 +120,7 @@ for(i in 1:length(data$Cpu))
     }
     else
     {
-      data$Cpu.Cores[i] = "100"
+      data$Cpu.Cores[i] = NaN
     }
   }
   else if(grepl("AMD", toString(data$Cpu[i])))
@@ -143,9 +148,9 @@ for(i in 1:length(data$Cpu))
 levels(data$Ram) = c("2GB", "4GB", "6GB", "8GB", "12GB", 
                      "16GB", "24GB", "32GB", "64GB")
 
-data$Ram1 = as.double(substr(data$Ram, 1, nchar(as.character(data$Ram))-2))    
+data$Ram1 = as.double(substr(data$Ram, 1, nchar(as.character(data$Ram))-2))
 
-# Split Memory into Size (Factor) and Type (Binary)
+### Split Memory into Size (Factor) and Type (Binary) ###
 data$Memory.Size = 0
 for(i in 1:length(data$Memory))
 {
@@ -165,7 +170,7 @@ for(i in 1:length(data$Memory))
     }
     else
     {
-      data$Memory.Size[i] = "xxx"
+      data$Memory.Size[i] = NaN
     }
   }
   else if(grepl("GB", toString(data$Memory[i])))
@@ -217,17 +222,16 @@ for(i in 1:length(data$Memory))
   }
   else
   {
-    data$Memory.Size[i] = "xGB"
+    #To see if there are any missing laptops
+    data$Memory.Size[i] = NaN
   }
 }
 
 ### Reorder Memory.Size to ascending order ###
-levels(data$Memory.Size) = c("8GB", "16GB", "32GB", "64GB", "128GB", "180GB", "240GB",
-                     "256GB", "500GB", "512GB", "1TB", "2TB", "Hybrid")
+data$Memory.Size = factor(data$Memory.Size, c("8GB", "16GB", "32GB", "64GB", "128GB", "180GB", "240GB",
+                                            "256GB", "500GB", "512GB", "1TB", "2TB", "Hybrid"))
 
 ### Split GPU into brand ###
-# What to do about the one ARM brand
-# 110 different GPUs...
 for(i in 1:length(data$Gpu))
 {
   if(grepl("AMD", data$Gpu[i]))
@@ -241,6 +245,10 @@ for(i in 1:length(data$Gpu))
   else if(grepl("Nvidia", data$Gpu[i]))
   {
     data$Gpu.Brand[i] = "Nvidia"
+  }
+  else
+  {
+    data$Gpu.Brand[i] = "ARM"
   }
 }
 
@@ -261,6 +269,7 @@ for(i in 1:length(data$OpSys))
   }
   else
   {
+    #???#
     data$Opsys[i] = levels(data$OpSys)[data$OpSys[i]]
   }
 }
@@ -270,3 +279,12 @@ data$Weight = as.double(substr(data$Weight, 1, nchar(as.character(data$Weight))-
 
 ### Remove old variables ###
 data = subset(data, select = -c(X, Product, ScreenResolution, Cpu, Memory, OpSys, Gpu))
+
+#Remove the NAN values and ones with samsung/ARM?
+data = data[-c(1192)]
+str(data)
+
+data$Cpu.Cores = factor(data$Cpu.Cores, c("2", "4"))
+data$Cpu.Brand = factor(data$Cpu.Brand, c("Intel", "AMD"))
+data$Gpu.Brand = factor(data$Gpu.Brand, c("Intel", "AMD", "Nvidia"))
+data$Opsys = factor(data$Opsys, c("Windows", "Linux", "Chrome OS", "Mac", "Android", "No OS"))
