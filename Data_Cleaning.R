@@ -3,7 +3,6 @@ data = data.frame(read.csv("laptops.csv"))
 summary(data)
 
 ### Split Screen Size to ratio and touchscreen ###
-#Too many levels, maybe split up to three sections (UHD, HD and standard?)
 for(i in 1:length(data$ScreenResolution))
 {
   data$Touchscreen[i] = grepl("Touchscreen", toString(data$ScreenResolution[i]))
@@ -65,6 +64,24 @@ for(i in 1:length(data$ScreenResolution))
     data$Resolution[i] = NaN
   }
 }
+
+for(i in 1:length(data$Resolution))
+{
+  if(as.double(data$Resolution[i]) > 2000)
+  {
+    data$Resolution[i] = "UHD"
+  }
+  else if(as.double(data$Resolution[i]) < 1280)
+  {
+    #None of the Screens are < 1280x720
+    data$Resolution[i] = "SD"
+  }
+  else
+  {
+    data$Resolution[i] = "HD"
+  }
+}
+
 ### Set the levels of resolution ###
 data$Resolution = factor(data$Resolution)
 levels(data$Resolution) = c("1366", "1440", "1600", "1920",
@@ -258,4 +275,3 @@ data$Weight = as.double(substr(data$Weight, 1, nchar(as.character(data$Weight))-
 
 ### Remove old variables ###
 data = subset(data, select = -c(X, Product, ScreenResolution, Cpu, Memory, OpSys, Gpu))
-write.csv(data, "Clean_Data.csv")
