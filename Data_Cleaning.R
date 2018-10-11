@@ -280,7 +280,7 @@ data$Weight = as.double(substr(data$Weight, 1, nchar(as.character(data$Weight))-
 data = subset(data, select = -c(X, Product, ScreenResolution, Cpu, Memory, OpSys, Gpu))
 
 #Remove the NAN values and ones with samsung/ARM?
-data = data[-c(1192)]
+data = data[-1192,]
 str(data)
 
 data$Cpu.Cores = factor(data$Cpu.Cores, c("2", "4"))
