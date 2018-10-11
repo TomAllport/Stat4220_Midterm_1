@@ -269,7 +269,6 @@ for(i in 1:length(data$OpSys))
   }
   else
   {
-    #???#
     data$Opsys[i] = levels(data$OpSys)[data$OpSys[i]]
   }
 }
@@ -287,4 +286,4 @@ str(data)
 data$Cpu.Cores = factor(data$Cpu.Cores, c("2", "4"))
 data$Cpu.Brand = factor(data$Cpu.Brand, c("Intel", "AMD"))
 data$Gpu.Brand = factor(data$Gpu.Brand, c("Intel", "AMD", "Nvidia"))
-data$Opsys = factor(data$Opsys, c("Windows", "Linux", "Chrome OS", "Mac", "Android", "No OS"))
+data$Opsys = factor(data$Opsys, c("Windows", "Linux", "Chrome", "Mac", "Android", "No OS"))
