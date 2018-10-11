@@ -40,26 +40,21 @@ anova(fit2)
 # Hybrid selection
 ###########################################################
 
-# There were NA errors in the rest of the code so I decided
-# to remove NA's. This reduces the sample size to 1276.
-data2<-na.omit(data1)
-nrow(data2)
-
 # Create a null model
-null <- lm(Price_euros~1, data=data2)
+null <- lm(Price_euros~1, data=data1)
 null
 
 # Create the full model
-full <- lm(Price_euros~., data=data2)
+full <- lm(Price_euros~., data=data1)
 full
 
 # Hybrid selection
 step(null, scope=list(upper=full), direction="both")
 
 # Final model from hybrid selection
-lm(formula = Price_euros ~ Ram + TypeName + Resolution + Company + 
-     Memory.Size + Opsys + Gpu.Brand + Weight + Cpu.Cores + Inches + 
-     Touchscreen + Cpu.Brand, data = data2)
+lm(formula = Price_euros ~ Ram + TypeName + Memory.Size + Resolution + 
+     Company + Opsys + Gpu.Brand + Weight + Cpu.Cores + Inches + 
+     Touchscreen + Cpu.Brand, data = data1)
 # All the variables are included in the model. The selection criteria
 # was AIC. 
 
@@ -72,16 +67,10 @@ lm(formula = Price_euros ~ Ram + TypeName + Resolution + Company +
 
 # fit1: NA's are not removed, use all variables
 # fit2: NA's are not removed, use all variables EXCEPT Touchscreen
-# fit 3: NA's removed, use all variables
-fit3 <- lm(Price_euros ~ ., data=data2)
-# fit 4: NA's removed, use all variables except Touchscreen
-fit4 <- lm(Price_euros ~.-Touchscreen, data=data2)
 
 # Create summaries of the models 
 fit1_sum <- summary(fit1)
 fit2_sum <- summary(fit2)
-fit3_sum <- summary(fit3)
-fit4_sum <- summary(fit4)
 
 # Which model is the best?
 
@@ -91,56 +80,45 @@ fit4_sum <- summary(fit4)
 # R-squared values 
 fit1_sum$r.squared
 fit2_sum$r.squared
-fit3_sum$r.squared
-fit4_sum$r.squared
-# fit 1,3: 0.7699
-# fit 2,4: 0.7691
+# fit 1: 0.7737066
+# fit 2: 0.7728616
 
 # Adjusted R-squared (adjusts for the # of independent variables)
 fit1_sum$adj.r.squared
 fit2_sum$adj.r.squared
-fit3_sum$adj.r.squared
-fit4_sum$adj.r.squared
-# 1,3: 0.7605
-# 2,4: 0.7599
+# fit 1: 0.7640964
+# fit 2: 0.7634051
 
 # F-statistic (the larger the better)
 fit1_sum$fstatistic
 fit2_sum$fstatistic
-fit3_sum$fstatistic
-fit4_sum$fstatistic
-# 1,3: 81.99
-# 2,4: 83.35
+# fit 1: 80.50875
+# fit 2: 81.7279
 
 # Residual standard error (the smaller the better)
 fit1_sum$sigma
 fit2_sum$sigma
-fit3_sum$sigma
-fit4_sum$sigma
-# 1,3: 341.6
-# 2,4: 342.1
+# fit 1: 339.5808
+# fit 2: 340.078
 
-# 1,3 have lower standard error and higher R-squared than 2,4.
+# Fit 1 has slightly higher R squared, adjusted R squared, and
+# residual standard error. Therefore we should use Fit 1
 
-# I decided to use Fit 3 because all NA's are removed, and 
-# Fit 3 has a lower standard error, higher R-squared, and higher
-# adjusted R-squared. 
-
-# Look at fit3
-summary(fit3)
-anova(fit3)
+# Look at fit1
+summary(fit1)
+anova(fit1)
 
 # However in the ANOVA, Touchscreen is still insignificant.
-# Maybe we should use fit4 instead?
-# Fit 4 is the same thing as fit3, except Touchscreen is removed
-# in fit4. 
+# Maybe we should use fit2 instead?
+# Fit 2 is the same thing as fit 1, except Touchscreen is removed
+# in fit 2. 
 
 ###########################################################
-# Check assumptions for Fit 3
+# Check assumptions for Fit 1
 
 # Make a data frame of the residuals 
-outputdata <- data.frame(fitted = fit3$fitted.values,
-                         residuals = fit3$residuals)
+outputdata <- data.frame(fitted = fit1$fitted.values,
+                         residuals = fit1$residuals)
 # Residual plot
 ggplot(outputdata, aes(x=fitted, y=residuals)) +
   geom_point() + 
@@ -156,11 +134,11 @@ ggplot(outputdata, aes(x=residuals, y=..density..)) +
 # These assumptions look good!
 
 ###########################################################
-# Check assumptions for Fit 4
+# Check assumptions for Fit 2
 
 # Make the residuals 
-outputdata2 <- data.frame(fitted = fit4$fitted.values,
-                         residuals = fit4$residuals)
+outputdata2 <- data.frame(fitted = fit2$fitted.values,
+                         residuals = fit2$residuals)
 # Residual plot
 ggplot(outputdata2, aes(x=fitted, y=residuals)) +
   geom_point() + 
@@ -175,12 +153,12 @@ ggplot(outputdata2, aes(x=residuals, y=..density..)) +
 # centered around 0, relatively normal shape.
 # These assumptions look good!
 
-# Fit 3 and Fit 4 are really similar in all their characteristics.
-# The only difference is that Fit 4 doesn't have a Touchscreen
+# Fit 1 and Fit 2 are really similar in all their characteristics.
+# The only difference is that Fit 2 doesn't have a Touchscreen
 # variable. Since it's better to have less variables than more,
-# we should consider using Fit 4 instead.
+# we should consider using Fit 2 instead.
 
-# In conclusion, Fit 3 and Fit 4 were the models obtained
+# In conclusion, Fit 1 and Fit 2 were the models obtained
 # from ordinary least squares and hybrid selection. 
 
 ############################################################
@@ -196,9 +174,9 @@ library(MASS)
 library(glmnet)
 
 # Create matrix of x values
-x1 <- model.matrix(Price_euros~., data2)[,-1]
+x1 <- model.matrix(Price_euros~., data1)[,-1]
 # Create y value (dependent variable)
-y1 <- data2$Price_euros
+y1 <- data1$Price_euros
 
 # lasso regression
 lasso_laptop <- glmnet(x1, y1, alpha=1, nlambda=150)
@@ -224,10 +202,10 @@ coef(final_lasso)
 ###########################################################
 
 # Final list of models obtained:
-# fit3
+# fit1
     # uses data with NA's removed, uses all variables
     # obtained from ordinary least squares
-# fit4
+# fit2
     # uses data with NA's removed, uses all variables EXCEPT Touchscreen
     # obtained from ordinary least squares
 # final_lasso
@@ -252,5 +230,4 @@ coef(final_lasso)
 # Make predictions on final laptop (the one that we choose)
 # Confidence interval (gives estimates for the mean price)
 # Prediction interval (gives estimates for the individual price)
-
 
