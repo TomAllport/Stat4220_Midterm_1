@@ -1,3 +1,8 @@
+# This is pretty much the same thing as Model Selection 
+# 10.10.2018, just with a few extra comments after my meeting
+# with Maria. The Model Selection 10.10.2018 code should 
+# work just fine though! 
+
 ###########################################################
 
 # Hey guys, here's what I got for the modeling. I'll try to 
