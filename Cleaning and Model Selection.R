@@ -503,6 +503,21 @@ newdata$Cpu.Brand = "Intel"
 newdata$Memory.Size = "512GB"
 newdata$Gpu.Brand = "Nvidia"
 newdata$Opsys = "Windows"
-newdata$Price_euros = 0
+# newdata$Price_euros = 0
 
-price = predict.glmnet(final_lasso, newx = newdata, s=lambda_lasso, type = "response")
+newdata$Cpu.Cores = factor(newdata$Cpu.Cores, c("2", "4"))
+newdata$Cpu.Brand = factor(newdata$Cpu.Brand, c("Intel", "AMD"))
+newdata$Gpu.Brand = factor(newdata$Gpu.Brand, c("Intel", "AMD", "Nvidia"))
+newdata$Opsys = factor(newdata$Opsys, c("Windows", "Linux", "Chrome", "Mac", "Android", "No OS"))
+newdata$TypeName = factor(newdata$TypeName, levels(data$TypeName))
+newdata$Ram = factor(newdata$Ram, levels(data$Ram))
+newdata$Resolution = factor(newdata$Resolution, levels(data$Resolution))
+newdata$Memory.Size = factor(newdata$Memory.Size, levels(data$Memory.Size))
+
+newx = sparseMatrix(i = c(1, 8, 22, 25, 30, 34, 35, 37, 44, 50, 55),
+                    j = rep(1,11),
+                    x = c(1,1,1,15.6,1,2.14,1,1,1,1,0))
+
+price = predict.glmnet(coef(final_lasso, s=lambda_lasso), newx = newx, s=lambda_lasso, type = "response")
+price = predict.glmnet(fit1, newx = newx, s=lambda_lasso, type = "response")
+
