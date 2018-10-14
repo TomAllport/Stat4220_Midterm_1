@@ -1,8 +1,3 @@
-# This is pretty much the same thing as Model Selection 
-# 10.10.2018, just with a few extra comments after my meeting
-# with Maria. The Model Selection 10.10.2018 code should 
-# work just fine though! 
-
 ###########################################################
 
 # Hey guys, here's what I got for the modeling. I'll try to 
@@ -62,6 +57,11 @@ lm(formula = Price_euros ~ Ram + TypeName + Memory.Size + Resolution +
      Touchscreen + Cpu.Brand, data = data1)
 # All the variables are included in the model. The selection criteria
 # was AIC. 
+
+ggplot(data1, aes(x=Weight, y=Inches)) + geom_point()
+cor(data1$Weight, data1$Inches)
+
+
 
 ###########################################################
 # 4 possible models so far. These models were generated from
@@ -124,6 +124,9 @@ anova(fit1)
 # Maybe we should use fit2 instead?
 # Fit 2 is the same thing as fit 1, except Touchscreen is removed
 # in fit 2. 
+
+library(car)
+vif(fit1, singular.ok=T)
 
 ###########################################################
 # Check assumptions for Fit 1
@@ -205,11 +208,34 @@ plot(lasso_cv$glmnet.fit, xvar="lambda", label=TRUE)
 # select lambda with smallest prediction error
 (lambda_lasso <- lasso_cv$lambda.min)
 
-# final LASSO model
+# CV LASSO model
 final_lasso <- glmnet(x1, y1, alpha=1, lambda = lambda_lasso)
 
 # coefficients for final model
-coef(final_lasso)
+coef(final_lasso, s=lambda_lasso)
+
+# pseudo R squared
+final_lasso$dev.ratio
+# 0.7736444
+
+library(plotmo)
+?plotres
+plotres(final_lasso, s=lambda_lasso)
+?plot_glmnet
+?plot_glmnet
+plot_glmnet(final_lasso, xvar="lambda")
+plotres(final_lasso, w1.xvar="lambda")
+
+summary(final_lasso)
+
+
+
+outputdata <- data.frame(fitted = fit1$fitted.values,
+                         residuals = fit1$residuals)
+# Residual plot
+ggplot(outputdata, aes(x=fitted, y=residuals)) +
+  geom_point() + 
+  geom_hline(yintercept = 0, color="red", size=2)
 
 ###########################################################
 
