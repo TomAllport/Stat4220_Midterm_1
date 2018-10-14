@@ -487,3 +487,22 @@ summary(final_lasso)
 
 ###########################################################
 
+# Prediction of new laptop price using Lasso Model
+newdata = data[0,]
+
+newdata[1,] = 0
+newdata$Company[1] = "HP"
+newdata$TypeName = "Notebook"
+newdata$Inches = 15.6
+newdata$Ram = "16GB"
+newdata$Weight = 2.14
+newdata$Touchscreen = T
+newdata$Resolution = "UHD"
+newdata$Cpu.Cores = "4"
+newdata$Cpu.Brand = "Intel"
+newdata$Memory.Size = "512GB"
+newdata$Gpu.Brand = "Nvidia"
+newdata$Opsys = "Windows"
+newdata$Price_euros = 0
+
+price = predict.glmnet(final_lasso, newx = newdata, s=lambda_lasso, type = "response")
