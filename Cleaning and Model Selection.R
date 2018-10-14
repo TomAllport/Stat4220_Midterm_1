@@ -7,7 +7,7 @@ library(glmnet)
 library(plotmo)
 
 #### Data Cleaning ####
-setwd("~/Documents/University/UVa/Semester 1/Business Analytics (4220)/Midterm/Data")
+setwd("~/set your working directory where laptops.csv is stored")
 data = data.frame(read.csv("laptops.csv"))
 
 #change to factor etc
