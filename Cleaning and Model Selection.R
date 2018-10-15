@@ -7,7 +7,7 @@ library(glmnet)
 library(plotmo)
 
 #### Data Cleaning ####
-setwd("~/set your working directory where laptops.csv is stored")
+setwd("~/Documents/University/UVa/Semester 1/Business Analytics (4220)/Midterm/Data")
 data = data.frame(read.csv("laptops.csv"))
 
 #change to factor etc
@@ -312,7 +312,7 @@ ggcorr(data1, label=TRUE, name="Color \nScale") +
 ###########################################################
 
 # Least squares model with ALL the explanatory variables
-fit1 <- lm(log(Price_euros) ~ ., data=data1)
+fit1 <- lm(Price_euros ~ ., data=data1)
 anova(fit1)
 # Touchscreen is not significant.
 
@@ -488,36 +488,29 @@ summary(final_lasso)
 ###########################################################
 
 # Prediction of new laptop price using Lasso Model
-newdata = data[0,]
 
-newdata[1,] = 0
-newdata$Company[1] = "HP"
-newdata$TypeName = "Notebook"
-newdata$Inches = 15.6
-newdata$Ram = "16GB"
-newdata$Weight = 2.14
-newdata$Touchscreen = T
-newdata$Resolution = "UHD"
-newdata$Cpu.Cores = "4"
-newdata$Cpu.Brand = "Intel"
-newdata$Memory.Size = "512GB"
-newdata$Gpu.Brand = "Nvidia"
-newdata$Opsys = "Windows"
-# newdata$Price_euros = 0
+# x1: the original set of x values that the model was built on
+head(x1)
 
-newdata$Cpu.Cores = factor(newdata$Cpu.Cores, c("2", "4"))
-newdata$Cpu.Brand = factor(newdata$Cpu.Brand, c("Intel", "AMD"))
-newdata$Gpu.Brand = factor(newdata$Gpu.Brand, c("Intel", "AMD", "Nvidia"))
-newdata$Opsys = factor(newdata$Opsys, c("Windows", "Linux", "Chrome", "Mac", "Android", "No OS"))
-newdata$TypeName = factor(newdata$TypeName, levels(data$TypeName))
-newdata$Ram = factor(newdata$Ram, levels(data$Ram))
-newdata$Resolution = factor(newdata$Resolution, levels(data$Resolution))
-newdata$Memory.Size = factor(newdata$Memory.Size, levels(data$Memory.Size))
+# x2: make a new matrix
+x2 <- x1
 
-newx = sparseMatrix(i = c(1, 8, 22, 25, 30, 34, 35, 37, 44, 50, 55),
-                    j = rep(1,11),
-                    x = c(1,1,1,15.6,1,2.14,1,1,1,1,0))
+# x2: make the 1st row the laptop we care about
+x2[1:58] <- c(rep(0, 6), 1, rep(0, 11), 
+              0, 0, 1, 0, 0, 
+              15.6,
+              rep(0, 4), 1, rep(0, 3),
+              2.14,
+              0,
+              TRUE, 
+              0, 0,
+              1,
+              0,
+              rep(0,8), 1, rep(0, 3),
+              0, 1,
+              rep(0,5))
 
-price = predict.glmnet(coef(final_lasso, s=lambda_lasso), newx = newx, s=lambda_lasso, type = "response")
-price = predict.glmnet(fit1, newx = newx, s=lambda_lasso, type = "response")
+x2 = t(x2[1,])
 
+# predict and extract the 1st row (the laptop we care about)
+predict(object = final_lasso, newx = x2, s = lambda_lasso, type = "response")
